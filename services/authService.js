@@ -32,11 +32,13 @@ const registerUser = async (data) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  const role = email === process.env.ADMIN_EMAIL ? "admin" : "user";
+
   const user = await User.create({
     name,
     email,
     password: hashedPassword,
-    role: "user",
+    role,
   });
 
   const accessToken = createAccessToken(user);
