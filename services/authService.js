@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendOtpEmail } = require("../config/email");
 
 const createAccessToken = (user) => {
   return jwt.sign(
@@ -167,10 +168,14 @@ const requestOtp = async (data) => {
 
   await user.save();
 
-  // TODO: integrate real SMS/email provider. For now, log the OTP.
-  console.log(`OTP for ${email}: ${code} (expires ${expires.toISOString()})`);
+  try {
+    await sendOtpEmail(email, code);
+  } catch (sendError) {
+    console.error("Failed to send OTP email:", sendError.message);
+    throw new Error("Unable to send OTP email. Please try again later.");
+  }
 
-  return { message: "OTP sent" };
+  return { message: "OTP sent to email" };
 };
 
 const verifyOtp = async (data) => {
