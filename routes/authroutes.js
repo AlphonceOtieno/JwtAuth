@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const authService = require("../services/authService");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const validateRequest = require("../middleware/validateRequest");
@@ -35,13 +36,27 @@ router.post(
   "/otp/request",
   otpRequestValidation,
   validateRequest,
-  authController.requestOtp
+  async (req, res) => {
+    try {
+      const result = await authService.requestOtp(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 );
 router.post(
   "/otp/verify",
   otpVerifyValidation,
   validateRequest,
-  authController.verifyOtp
+  async (req, res) => {
+    try {
+      const result = await authService.verifyOtp(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 );
 router.get("/profile", authMiddleware, authController.getProfile);
 router.get(
