@@ -145,6 +145,75 @@ const getAllUsers = async () => {
   return await User.find().select("name email role");
 };
 
+// OTP helpers
+const generateOtpCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+const requestOtp = async (data) => {
+  const { email } = data;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const code = generateOtpCode();
+  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  user.otpCode = code;
+  user.otpExpires = expires;
+  user.otpVerified = false;
+
+  await user.save();
+
+  // TODO: integrate real SMS/email provider. For now, log the OTP.
+  console.log(`OTP for ${email}: ${code} (expires ${expires.toISOString()})`);
+
+  return { message: "OTP sent" };
+};
+
+const verifyOtp = async (data) => {
+  const { email, code } = data;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.otpCode || !user.otpExpires) {
+    throw new Error("No OTP requested");
+  }
+
+  if (new Date() > user.otpExpires) {
+    throw new Error("OTP expired");
+  }
+
+  if (user.otpCode !== code) {
+    throw new Error("Invalid OTP code");
+  }
+
+  user.otpVerified = true;
+  user.otpCode = undefined;
+  user.otpExpires = undefined;
+
+  await user.save();
+
+  // Optionally issue tokens on successful verification
+  const accessToken = createAccessToken(user);
+  const refreshToken = createRefreshToken(user);
+
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  return {
+    message: "OTP verified",
+    accessToken,
+    refreshToken,
+    user: { id: user._id, name: user.name, email: user.email, role: user.role },
+  };
+};
+
 module.exports = {
   registerUser,
   loginUser,
