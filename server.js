@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authroutes");
+const mpesaRoutes = require("./routes/mpesaroutes");
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/mpesa", mpesaRoutes);
 
 app.get("/", (req, res) => {
   res.send("API running...");
