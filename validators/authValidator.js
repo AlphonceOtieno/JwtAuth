@@ -25,8 +25,30 @@ const tokenValidation = [
   body("token").notEmpty().withMessage("Refresh token is required"),
 ];
 
+const otpRequestValidation = [
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Valid email is required")
+    .normalizeEmail(),
+];
+
+const otpVerifyValidation = [
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Valid email is required")
+    .normalizeEmail(),
+  body("code")
+    .trim()
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP code must be 6 digits"),
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
   tokenValidation,
+  otpRequestValidation,
+  otpVerifyValidation,
 };

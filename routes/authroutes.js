@@ -8,6 +8,8 @@ const {
   registerValidation,
   loginValidation,
   tokenValidation,
+  otpRequestValidation,
+  otpVerifyValidation,
 } = require("../validators/authValidator");
 
 router.post(
@@ -28,6 +30,18 @@ router.post(
   tokenValidation,
   validateRequest,
   authController.logoutUser
+);
+router.post(
+  "/otp/request",
+  otpRequestValidation,
+  validateRequest,
+  authController.requestOtp
+);
+router.post(
+  "/otp/verify",
+  otpVerifyValidation,
+  validateRequest,
+  authController.verifyOtp
 );
 router.get("/profile", authMiddleware, authController.getProfile);
 router.get(

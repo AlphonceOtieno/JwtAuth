@@ -221,4 +221,6 @@ module.exports = {
   logoutUser,
   getUserById,
   getAllUsers,
+  requestOtp,
+  verifyOtp,
 };
